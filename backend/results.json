@@ -1,7 +1,18 @@
 {
-    "repo_url": "https://github.com/test/repo",
-    "team_name": "Alpha",
-    "leader_name": "Bhuvan",
-    "ci_status": "STARTED",
-    "time_taken": 0.0
+    "repo_url": "",
+    "team_name": "",
+    "leader_name": "",
+    "branch_name": "",
+    "total_failures": 0,
+    "fixes_applied": 0,
+    "iterations": 0,
+    "ci_status": "PENDING",
+    "commits": 0,
+    "score": {
+        "base": 100,
+        "speed_bonus": 0,
+        "penalty": 0,
+        "final": 100
+    },
+    "fixes": []
 }

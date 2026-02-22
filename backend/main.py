@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import time
 import json
+import os
+
+from agents.iteration_controller import run_iteration
 
 app = FastAPI()
+
 
 class RunAgentRequest(BaseModel):
     repo_url: str
@@ -13,21 +16,15 @@ class RunAgentRequest(BaseModel):
 
 @app.post("/run-agent")
 def run_agent(data: RunAgentRequest):
+    result = run_iteration(
+        data.repo_url,
+        data.team_name,
+        data.leader_name
+    )
 
-    start_time = time.time()
-
-    result = {
-        "repo_url": data.repo_url,
-        "team_name": data.team_name,
-        "leader_name": data.leader_name,
-        "ci_status": "STARTED"
-    }
-
-    end_time = time.time()
-    result["time_taken"] = round(end_time - start_time, 2)
-
-    # 🔥 THIS IS THE IMPORTANT PART
-    with open("results.json", "w") as f:
+    # Save results.json
+    results_path = os.path.join(os.path.dirname(__file__), "results.json")
+    with open(results_path, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=4)
 
     return result

@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+gitpython
+docker
+requests
+openai
+autopep8
+pytest

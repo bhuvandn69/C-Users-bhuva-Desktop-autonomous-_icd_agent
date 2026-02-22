@@ -1,47 +1,31 @@
 import os
 import re
-import random
-import string
+import uuid
 from git import Repo
 
-# Clone inside system /tmp directory
-BASE_CLONE_DIR = "/tmp"
-
-
-# 1️⃣ Generate random folder name
-def generate_random_folder():
-    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+# ✅ Clone inside D drive instead of system temp
+BASE_CLONE_DIR = "D:/temp_clones"
 
 
 # 2️⃣ Sanitize branch name
 def sanitize_branch_name(team_name, leader_name):
-    # Combine names
-    branch = f"{team_name}_{leader_name}_AI_Fix"
-
-    # Convert to uppercase
-    branch = branch.upper()
-
-    # Replace spaces with underscore
-    branch = branch.replace(" ", "_")
-
-    # Remove special characters
-    branch = re.sub(r'[^A-Z0-9_]', '', branch)
-
-    # Ensure it ends EXACTLY with _AI_FIX
-    if not branch.endswith("_AI_FIX"):
-        branch = branch + "_AI_FIX"
-
-    return branch
+    team = re.sub(r"[^A-Z0-9_]", "", str(team_name).upper().replace(" ", "_"))
+    leader = re.sub(r"[^A-Z0-9_]", "", str(leader_name).upper().replace(" ", "_"))
+    return f"{team}_{leader}_AI_Fix"
 
 
-# 3️⃣ Clone repository
+# 3️⃣ Clone repository (UPDATED)
 def clone_repository(repo_url):
+
+    # Create base clone folder in D drive if not exists
     if not os.path.exists(BASE_CLONE_DIR):
         os.makedirs(BASE_CLONE_DIR)
 
-    folder_name = generate_random_folder()
+    # Create unique folder
+    folder_name = str(uuid.uuid4())
     clone_path = os.path.join(BASE_CLONE_DIR, folder_name)
 
+    # Clone repo
     repo = Repo.clone_from(repo_url, clone_path)
 
     return repo, clone_path
@@ -49,7 +33,6 @@ def clone_repository(repo_url):
 
 # 4️⃣ Create new branch
 def create_branch(repo, branch_name):
-    # Check if branch already exists
     if branch_name in repo.heads:
         repo.git.checkout(branch_name)
     else:
@@ -62,16 +45,14 @@ def create_branch(repo, branch_name):
 # 5️⃣ Commit changes
 def commit_changes(repo, message):
     repo.git.add(all=True)
-
-    # Ensure commit starts with required prefix
+    if not repo.is_dirty(index=True, working_tree=True, untracked_files=True):
+        return False
     full_message = f"[AI-AGENT] {message}"
-
     repo.index.commit(full_message)
+    return True
 
 
 # 6️⃣ Push branch to GitHub
 def push_branch(repo, branch_name):
     origin = repo.remote(name='origin')
-
-    # Push ONLY the new branch
     origin.push(refspec=f"{branch_name}:{branch_name}")
